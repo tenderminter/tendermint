@@ -1,7 +1,6 @@
 module github.com/tendermint/tendermint
 
 go 1.15
-
 require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/ChainSafe/go-schnorrkel v0.0.0-20200405005733-88cbf1b4c40d
