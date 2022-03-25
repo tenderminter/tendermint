@@ -649,7 +649,7 @@ func TestEmptyPrepareProposal(t *testing.T) {
 	)
 	pa, _ := state.Validators.GetByIndex(0)
 	commit := makeValidCommit(ctx, t, height, types.BlockID{}, state.Validators, privVals)
-	_, err = blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil)
+	_, err = blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil, 0)
 	require.NoError(t, err)
 }
 
@@ -705,7 +705,7 @@ func TestPrepareProposalPanicOnInvalid(t *testing.T) {
 	commit := makeValidCommit(ctx, t, height, types.BlockID{}, state.Validators, privVals)
 	require.Panics(t,
 		func() {
-			blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil) //nolint:errcheck
+			blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil, 0) //nolint:errcheck
 		})
 
 	mp.AssertExpectations(t)
@@ -760,7 +760,7 @@ func TestPrepareProposalRemoveTxs(t *testing.T) {
 	)
 	pa, _ := state.Validators.GetByIndex(0)
 	commit := makeValidCommit(ctx, t, height, types.BlockID{}, state.Validators, privVals)
-	block, err := blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil)
+	block, err := blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil, 0)
 	require.NoError(t, err)
 	require.Len(t, block.Data.Txs.ToSliceOfBytes(), len(trs)-2)
 
@@ -819,7 +819,7 @@ func TestPrepareProposalAddedTxsIncluded(t *testing.T) {
 	)
 	pa, _ := state.Validators.GetByIndex(0)
 	commit := makeValidCommit(ctx, t, height, types.BlockID{}, state.Validators, privVals)
-	block, err := blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil)
+	block, err := blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil, 0)
 	require.NoError(t, err)
 
 	require.Equal(t, txs[0], block.Data.Txs[0])
@@ -875,7 +875,7 @@ func TestPrepareProposalReorderTxs(t *testing.T) {
 	)
 	pa, _ := state.Validators.GetByIndex(0)
 	commit := makeValidCommit(ctx, t, height, types.BlockID{}, state.Validators, privVals)
-	block, err := blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil)
+	block, err := blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil, 0)
 	require.NoError(t, err)
 	for i, tx := range block.Data.Txs {
 		require.Equal(t, types.Tx(trs[i].Tx), tx)
@@ -938,7 +938,7 @@ func TestPrepareProposalModifiedTxStatusFalse(t *testing.T) {
 	)
 	pa, _ := state.Validators.GetByIndex(0)
 	commit := makeValidCommit(ctx, t, height, types.BlockID{}, state.Validators, privVals)
-	block, err := blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil)
+	block, err := blockExec.CreateProposalBlock(ctx, height, state, commit, pa, nil, 0)
 	require.NoError(t, err)
 	for i, tx := range block.Data.Txs {
 		require.Equal(t, txs[i], tx)
