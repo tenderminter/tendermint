@@ -104,17 +104,24 @@ func (blockExec *BlockExecutor) CreateProposalBlock(
 	commit *types.Commit,
 	proposerAddr []byte,
 	votes []*types.Vote,
+	appMaxBytes int64,
 ) (*types.Block, error) {
 
-	maxBytes := state.ConsensusParams.Block.MaxBytes
 	maxGas := state.ConsensusParams.Block.MaxGas
 
 	evidence, evSize := blockExec.evpool.PendingEvidence(state.ConsensusParams.Evidence.MaxBytes)
+	maxDataBytes := types.MaxDataBytes(state.ConsensusParams.Block.MaxBytes, evSize, state.Validators.Size())
 
-	// Fetch a limited amount of valid txs
-	maxDataBytes := types.MaxDataBytes(maxBytes, evSize, state.Validators.Size())
+	var txs types.Txs
+	switch appMaxBytes {
+	case -1:
+		txs = blockExec.mempool.ReapMaxBytesMaxGas(-1, -1)
+	case 0:
+		txs = blockExec.mempool.ReapMaxBytesMaxGas(maxDataBytes, maxGas)
+	default:
+		txs = blockExec.mempool.ReapMaxBytesMaxGas(appMaxBytes, -1)
+	}
 
-	txs := blockExec.mempool.ReapMaxBytesMaxGas(maxDataBytes, maxGas)
 	block := state.MakeBlock(height, txs, commit, evidence, proposerAddr)
 
 	localLastCommit := buildLastCommitInfo(block, blockExec.store, state.InitialHeight)
